@@ -7,7 +7,7 @@ export class Calculator {
 
     add(n: number): number {
         this.value += n
+        console.log('dd')
         return this.value
-
     }
 }
