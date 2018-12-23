@@ -8,5 +8,6 @@ export class Calculator {
     add(n: number): number {
         this.value += n
         return this.value
+
     }
 }
