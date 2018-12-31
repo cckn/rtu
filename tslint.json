@@ -4,7 +4,8 @@
     "jsRules": {},
     "rules": {
         "ordered-imports": false,
-        "max-line-length": [true, 140]
+        "max-line-length": [true, 140],
+        "semicolon": [true, "never"]
     },
     "rulesDirectory": []
 }
