@@ -1,13 +1,12 @@
 export class Calculator {
-    value: number
+    public value: number;
 
     constructor() {
-        this.value = 0
+        this.value = 0;
     }
 
-    add(n: number): number {
-        this.value += n
-        console.log('dd')
-        return this.value
+    public add(n: number): number {
+        this.value += n;
+        return this.value;
     }
 }
