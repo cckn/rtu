@@ -6,7 +6,11 @@ export class Utils {
      */
     public hex2ascii(value: number, size: number): number[] {
         const arr = []
-        const str = value.toString(16)
+        let str = value.toString(16)
+        if (str.length > size) {
+            throw new Error('ddd')
+        }
+        str = Array(size - str.length + 1).join('0') + str
         for (let i = 0, l = str.length; i < l; i++) {
             const hex = Number(str.charCodeAt(i)) // .toString(16)
             arr.push(hex)
@@ -19,5 +23,5 @@ export class Utils {
 
 if (require.main === module) {
     const utils = new Utils()
-    console.log(utils.hex2ascii(0x0f, 1))
+    console.log(utils.hex2ascii(0x01, 2))
 }
