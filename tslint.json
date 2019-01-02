@@ -5,7 +5,10 @@
     "rules": {
         "ordered-imports": false,
         "max-line-length": [true, 140],
-        "semicolon": [true, "never"]
+        "semicolon": [true, "never"],
+        "no-empty": false,
+        "no-console": false,
+        "quotemark": [true, "single"]
     },
     "rulesDirectory": []
 }
