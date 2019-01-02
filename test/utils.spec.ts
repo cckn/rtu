@@ -1,4 +1,4 @@
-import { expect, assert } from 'chai'
+import { expect } from 'chai'
 import { Utils } from '../src/utils'
 
 describe('Hex to Ascii', () => {
@@ -21,5 +21,18 @@ describe('Hex to Ascii', () => {
         const utils = new Utils()
         expect(() => utils.hex2ascii(0xff, 2)).to.not.throw()
         expect(() => utils.hex2ascii(0xff, 1)).to.throw()
+    })
+})
+
+describe('Ascii to Hex', () => {
+    it('value가 정확히 변경되는지 확인', () => {
+        const utils = new Utils()
+        expect(utils.ascii2hex([0x31])).equal(0x01)
+        expect(utils.ascii2hex([0x66])).equal(0x0f)
+    })
+
+    it('데이터가 틀리면 에러 발생 ', () => {
+        const utils = new Utils()
+        expect(() => utils.ascii2hex([0x29])).to.throw()
     })
 })
