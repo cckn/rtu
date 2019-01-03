@@ -6,24 +6,25 @@ export class HexPowerInverter {
     /**
      * makeFrame
      */
-    public makeFrame(cmd: number, addr: number, size: number): Uint8Array {
+    public makeFrame(cmd: number, addr: number, size: number): number[] {
         const hex2ascii = new Utils().hex2ascii
-        const arr: Uint8Array = new Uint8Array(15)
-        arr.set([0x05], 0)
 
-        arr.set(hex2ascii(this.id, 2), 1) // id
-        arr.set([cmd], 3) // cmd
-        arr.set(hex2ascii(addr, 4), 4) // address
-        arr.set(hex2ascii(size, 2), 8) // size
+        let arr: number[] = new Array()
+        arr = arr.concat(0x05)
+
+        arr = arr.concat(hex2ascii(this.id, 2)) // id
+        arr = arr.concat(cmd) // cmd
+        arr = arr.concat(hex2ascii(addr, 4)) // address
+        arr = arr.concat(hex2ascii(size, 2)) // size
 
         let sum = 0
         for (let index = 1; index < 10; index++) {
             const element = arr[index]
             sum += element
         }
-        arr.set(hex2ascii(sum, 4), 10) // CKSUM
+        arr = arr.concat(hex2ascii(sum, 4)) // CKSUM
 
-        arr.set([0x04], 14)
+        arr = arr.concat(0x04)
 
         return arr
     }
