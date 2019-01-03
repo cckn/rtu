@@ -29,10 +29,12 @@ describe('Ascii to Hex', () => {
         const utils = new Utils()
         expect(utils.ascii2hex([0x31])).equal(0x01)
         expect(utils.ascii2hex([0x66])).equal(0x0f)
+        expect(utils.ascii2hex([0x66, 0x66, 0x66, 0x66])).equal(0xffff)
     })
 
     it('데이터가 틀리면 에러 발생 ', () => {
         const utils = new Utils()
         expect(() => utils.ascii2hex([0x29])).to.throw()
+        expect(() => utils.ascii2hex([0x30])).to.not.throw()
     })
 })

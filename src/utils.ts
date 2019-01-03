@@ -32,7 +32,7 @@ export class Utils {
         }
 
         const ret = parseInt(str, 16)
-        if (!ret) {
+        if (isNaN(ret)) {
             throw new Error('Invalid Value')
         }
         return ret
@@ -41,5 +41,6 @@ export class Utils {
 
 if (require.main === module) {
     const utils = new Utils()
-    console.log(utils.ascii2hex([0x66]))
+    console.log(utils.ascii2hex([0x29]))
+    console.log(utils.ascii2hex([0x30]))
 }
