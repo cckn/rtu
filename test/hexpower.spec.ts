@@ -2,7 +2,145 @@ import { expect } from 'chai'
 import { Utils } from '../src/utils'
 import { HexPowerInverter } from '../src/hexpower'
 
-describe('HexPower Inverter', () => {
+describe('calc CRC', () => {
+    it('입력된 데이터 sum 후 return 1', () => {
+        const hexpower = new HexPowerInverter(1)
+        expect(
+            hexpower.calcCRC(
+                [
+                    0x06,
+
+                    0x30,
+                    0x31,
+
+                    0x52,
+
+                    0x30,
+                    0x30,
+                    0x32,
+                    0x30,
+
+                    0x31,
+                    0x32,
+                    0x33,
+                    0x34,
+                    0x32,
+                    0x33,
+                    0x34,
+                    0x35,
+                ],
+                1,
+                16
+            )
+        ).to.equal(0x30d)
+    })
+    it('입력된 데이터 sum 후 return 2', () => {
+        const hexpower = new HexPowerInverter(1)
+        expect(
+            hexpower.calcCRC(
+                [
+                    0x05, // 0 ENQ
+
+                    0x30, // 1 ID
+                    0x31,
+
+                    0x52, // 3 CMD
+
+                    0x30, // 4 ADDR
+                    0x30,
+                    0x30,
+                    0x34,
+
+                    0x30, // 8 SIZE
+                    0x34,
+
+                    0x30, // 10 CKSUM
+                    0x31,
+                    0x64,
+                    0x62,
+
+                    0x04, // 14 EOT
+                ],
+                1,
+                10
+            )
+        ).to.equal(0x1db)
+    })
+})
+
+describe.skip('패킷 검증 ', () => {
+    it('Good 패킷 검증 ', () => {
+        const hexpower = new HexPowerInverter(1)
+        expect(
+            hexpower.verifyResponse([
+                0x06,
+
+                0x30,
+                0x31,
+
+                0x52,
+
+                0x30,
+                0x30,
+                0x32,
+                0x30,
+
+                0x31,
+                0x32,
+                0x33,
+                0x34,
+                0x32,
+                0x33,
+                0x34,
+                0x35,
+
+                0x30,
+                0x33,
+                0x30,
+                0x64,
+
+                0x04,
+            ])
+        ).to.equal(true)
+    })
+
+    it('Bad 패킷 검증 ', () => {
+        const hexpower = new HexPowerInverter(1)
+        expect(
+            hexpower.verifyResponse([
+                0x06,
+
+                0x30,
+                0x31,
+
+                0x52,
+
+                0x30,
+                0x30,
+                0x32,
+                0x30,
+
+                0x31,
+                0x32,
+                0x33,
+                0x34,
+                0x32,
+                0x33,
+                0x34,
+                0x35,
+
+                0x30,
+                0x33,
+                0x30,
+                0x63,
+
+                0x04,
+            ])
+        ).to.equal(false)
+    })
+})
+
+describe.skip('HexPower Inverter', () => {
     it('생성자 확인', () => {
         const hexpower1 = new HexPowerInverter(1)
         expect(hexpower1.id).to.equal(1)

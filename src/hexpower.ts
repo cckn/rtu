@@ -3,6 +3,14 @@ import { Utils } from './utils'
 export class HexPowerInverter {
     constructor(public id: number) {}
 
+    public calcCRC(data: number[], start: number, end: number): number {
+        let sum = 0
+        for (let index = start; index < end; index++) {
+            const element = data[index]
+            sum += element
+        }
+        return sum
+    }
     /**
      * makeFrame
      */
@@ -28,6 +36,17 @@ export class HexPowerInverter {
 
         return arr
     }
+
+    /**
+     * verifyResponse
+     */
+    public verifyResponse(data: number[] | Buffer): boolean {
+        return true
+    }
+
+    /**
+     * calcCRC
+     */
 }
 
 if (require.main === module) {
