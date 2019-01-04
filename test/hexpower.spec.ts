@@ -66,9 +66,57 @@ describe('calc CRC', () => {
             )
         ).to.equal(0x1db)
     })
+    it('입력된 데이터 sum 후 return 1(start end 생략)', () => {
+        const hexpower = new HexPowerInverter(1)
+        expect(
+            hexpower.calcCRC([
+                0x06,
+
+                0x30,
+                0x31,
+
+                0x52,
+
+                0x30,
+                0x30,
+                0x32,
+                0x30,
+
+                0x31,
+                0x32,
+                0x33,
+                0x34,
+                0x32,
+                0x33,
+                0x34,
+                0x35,
+            ])
+        ).to.equal(0x30d)
+    })
+    it('입력된 데이터 sum 후 return 2(start end 생략)', () => {
+        const hexpower = new HexPowerInverter(1)
+        expect(
+            hexpower.calcCRC([
+                0x05, // 0 ENQ
+
+                0x30, // 1 ID
+                0x31,
+
+                0x52, // 3 CMD
+
+                0x30, // 4 ADDR
+                0x30,
+                0x30,
+                0x34,
+
+                0x30, // 8 SIZE
+                0x34,
+            ])
+        ).to.equal(0x1db)
+    })
 })
 
-describe.skip('패킷 검증 ', () => {
+describe('패킷 검증 ', () => {
     it('Good 패킷 검증 ', () => {
         const hexpower = new HexPowerInverter(1)
         expect(
@@ -104,7 +152,109 @@ describe.skip('패킷 검증 ', () => {
         ).to.equal(true)
     })
 
-    it('Bad 패킷 검증 ', () => {
+    it('Bad 패킷 검증 (CRC BAD)', () => {
+        const hexpower = new HexPowerInverter(1)
+        expect(
+            hexpower.verifyResponse([
+                0x06,
+
+                0x30,
+                0x31,
+
+                0x52,
+
+                0x30,
+                0x30,
+                0x32,
+                0x30,
+
+                0x31,
+                0x32,
+                0x33,
+                0x34,
+                0x32,
+                0x33,
+                0x34,
+                0x35,
+
+                0x30,
+                0x33,
+                0x30,
+                0x63,
+
+                0x04,
+            ])
+        ).to.equal(false)
+    })
+    it('Bad 패킷 검증 (CRC BAD)', () => {
+        const hexpower = new HexPowerInverter(1)
+        expect(
+            hexpower.verifyResponse([
+                0x06,
+
+                0x30,
+                0x31,
+
+                0x52,
+
+                0x30,
+                0x30,
+                0x32,
+                0x30,
+
+                0x31,
+                0x32,
+                0x33,
+                0x34,
+                0x32,
+                0x33,
+                0x34,
+                0x35,
+
+                0x30,
+                0x33,
+                0x30,
+                0x63,
+
+                0x04,
+            ])
+        ).to.equal(false)
+    })
+    it('Bad 패킷 검증 (CRC BAD)', () => {
+        const hexpower = new HexPowerInverter(1)
+        expect(
+            hexpower.verifyResponse([
+                0x06,
+
+                0x30,
+                0x31,
+
+                0x52,
+
+                0x30,
+                0x30,
+                0x32,
+                0x30,
+
+                0x31,
+                0x32,
+                0x33,
+                0x34,
+                0x32,
+                0x33,
+                0x34,
+                0x35,
+
+                0x30,
+                0x33,
+                0x30,
+                0x63,
+
+                0x04,
+            ])
+        ).to.equal(false)
+    })
+    it('Bad 패킷 검증 (CRC BAD)', () => {
         const hexpower = new HexPowerInverter(1)
         expect(
             hexpower.verifyResponse([
@@ -140,7 +290,7 @@ describe.skip('패킷 검증 ', () => {
     })
 })
 
-describe.skip('HexPower Inverter', () => {
+describe('HexPower Inverter', () => {
     it('생성자 확인', () => {
         const hexpower1 = new HexPowerInverter(1)
         expect(hexpower1.id).to.equal(1)

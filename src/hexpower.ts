@@ -3,8 +3,11 @@ import { Utils } from './utils'
 export class HexPowerInverter {
     constructor(public id: number) {}
 
-    public calcCRC(data: number[], start: number, end: number): number {
+    public calcCRC(data: number[], startIdx?: number, endIdx?: number): number {
+        const start = startIdx ? startIdx : 1
+        const end = endIdx ? endIdx : data.length
         let sum = 0
+
         for (let index = start; index < end; index++) {
             const element = data[index]
             sum += element
@@ -25,12 +28,7 @@ export class HexPowerInverter {
         arr = arr.concat(hex2ascii(addr, 4)) // address
         arr = arr.concat(hex2ascii(size, 2)) // size
 
-        let sum = 0
-        for (let index = 1; index < 10; index++) {
-            const element = arr[index]
-            sum += element
-        }
-        arr = arr.concat(hex2ascii(sum, 4)) // CKSUM
+        arr = arr.concat(hex2ascii(this.calcCRC(arr), 4)) // CKSUM
 
         arr = arr.concat(0x04)
 
@@ -40,7 +38,14 @@ export class HexPowerInverter {
     /**
      * verifyResponse
      */
-    public verifyResponse(data: number[] | Buffer): boolean {
+    public verifyResponse(data: number[]): boolean {
+        // CRC Check
+        const ascii2hex = new Utils().ascii2hex
+
+        const tmp = ascii2hex(data.slice(data.length - 5, data.length - 1))
+        if (this.calcCRC(data, 1, data.length - 5) !== tmp) {
+            return false
+        }
         return true
     }
 
