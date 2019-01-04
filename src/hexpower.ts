@@ -35,23 +35,23 @@ export class HexPowerInverter {
         return arr
     }
 
-    /**
-     * verifyResponse
-     */
     public verifyResponse(data: number[]): boolean {
         // CRC Check
         const ascii2hex = new Utils().ascii2hex
-
         const tmp = ascii2hex(data.slice(data.length - 5, data.length - 1))
+
+        if (data[0] !== 0x06 || data.slice(-1)[0] !== 0x04) {
+            return false
+        }
+        // console.log(
+        //     `tmp : ${tmp}, CRC = : ${this.calcCRC(data, 1, data.length - 5)}`
+        // )
+
         if (this.calcCRC(data, 1, data.length - 5) !== tmp) {
             return false
         }
         return true
     }
-
-    /**
-     * calcCRC
-     */
 }
 
 if (require.main === module) {

@@ -117,176 +117,69 @@ describe('calc CRC', () => {
 })
 
 describe('패킷 검증 ', () => {
+    const data = [
+        0x06, // 0
+
+        0x30, // 1
+        0x31,
+
+        0x52, // 3
+
+        0x30, // 4
+        0x30,
+        0x32,
+        0x30,
+
+        0x31, // 8
+        0x32,
+        0x33,
+        0x34,
+        0x32,
+        0x33,
+        0x34,
+        0x35,
+
+        0x30, // 16
+        0x33,
+        0x30,
+        0x64,
+
+        0x04, // 20
+    ]
+
     it('Good 패킷 검증 ', () => {
         const hexpower = new HexPowerInverter(1)
-        expect(
-            hexpower.verifyResponse([
-                0x06,
-
-                0x30,
-                0x31,
-
-                0x52,
-
-                0x30,
-                0x30,
-                0x32,
-                0x30,
-
-                0x31,
-                0x32,
-                0x33,
-                0x34,
-                0x32,
-                0x33,
-                0x34,
-                0x35,
-
-                0x30,
-                0x33,
-                0x30,
-                0x64,
-
-                0x04,
-            ])
-        ).to.equal(true)
+        const goodpacket = data
+        expect(hexpower.verifyResponse(data)).to.equal(true)
     })
 
     it('Bad 패킷 검증 (CRC BAD)', () => {
         const hexpower = new HexPowerInverter(1)
-        expect(
-            hexpower.verifyResponse([
-                0x06,
+        const badPacket = data.slice()
+        badPacket[18] = 0x44
 
-                0x30,
-                0x31,
-
-                0x52,
-
-                0x30,
-                0x30,
-                0x32,
-                0x30,
-
-                0x31,
-                0x32,
-                0x33,
-                0x34,
-                0x32,
-                0x33,
-                0x34,
-                0x35,
-
-                0x30,
-                0x33,
-                0x30,
-                0x63,
-
-                0x04,
-            ])
-        ).to.equal(false)
+        expect(hexpower.verifyResponse(badPacket)).to.equal(false)
     })
-    it('Bad 패킷 검증 (CRC BAD)', () => {
+    it('Bad 패킷 검증 (START BAD)', () => {
         const hexpower = new HexPowerInverter(1)
-        expect(
-            hexpower.verifyResponse([
-                0x06,
+        const badPacket = data.slice()
+        badPacket[0] = 0x05
 
-                0x30,
-                0x31,
-
-                0x52,
-
-                0x30,
-                0x30,
-                0x32,
-                0x30,
-
-                0x31,
-                0x32,
-                0x33,
-                0x34,
-                0x32,
-                0x33,
-                0x34,
-                0x35,
-
-                0x30,
-                0x33,
-                0x30,
-                0x63,
-
-                0x04,
-            ])
-        ).to.equal(false)
+        expect(hexpower.verifyResponse(badPacket)).to.equal(false)
     })
-    it('Bad 패킷 검증 (CRC BAD)', () => {
+    it('Bad 패킷 검증 (END BAD)', () => {
         const hexpower = new HexPowerInverter(1)
-        expect(
-            hexpower.verifyResponse([
-                0x06,
+        const badPacket = data.slice()
+        badPacket[20] = 0x03
 
-                0x30,
-                0x31,
-
-                0x52,
-
-                0x30,
-                0x30,
-                0x32,
-                0x30,
-
-                0x31,
-                0x32,
-                0x33,
-                0x34,
-                0x32,
-                0x33,
-                0x34,
-                0x35,
-
-                0x30,
-                0x33,
-                0x30,
-                0x63,
-
-                0x04,
-            ])
-        ).to.equal(false)
+        expect(hexpower.verifyResponse(badPacket)).to.equal(false)
     })
-    it('Bad 패킷 검증 (CRC BAD)', () => {
+    it.skip('Bad 패킷 검증 (length BAD)', () => {
         const hexpower = new HexPowerInverter(1)
-        expect(
-            hexpower.verifyResponse([
-                0x06,
+        const badPacket = data.slice()
+        // badPacket[18] = 0x44
 
-                0x30,
-                0x31,
-
-                0x52,
-
-                0x30,
-                0x30,
-                0x32,
-                0x30,
-
-                0x31,
-                0x32,
-                0x33,
-                0x34,
-                0x32,
-                0x33,
-                0x34,
-                0x35,
-
-                0x30,
-                0x33,
-                0x30,
-                0x63,
-
-                0x04,
-            ])
-        ).to.equal(false)
+        expect(hexpower.verifyResponse(badPacket)).to.equal(false)
     })
 })
 
