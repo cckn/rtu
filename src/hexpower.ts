@@ -1,6 +1,10 @@
 import { Utils } from './utils'
+// import BufferList = require('bl')
 
 export class HexPowerInverter {
+    // private bl = new BufferList()
+    private arr = new Array()
+
     constructor(public id: number) {}
 
     public calcCRC(data: number[], startIdx?: number, endIdx?: number): number {
@@ -51,6 +55,19 @@ export class HexPowerInverter {
             return false
         }
         return true
+    }
+
+    public parser(data: number[]) {
+        // TODO:
+        // // if arr is empty
+        // if (this.arr.length === 0 && data[0] === 0x06) {
+        //     // if data[0] is 0x06
+        //     // append data to array to data
+        // } else {
+        //     //append data to array
+        // }
+        // if (condition) {
+        // }
     }
 }
 
