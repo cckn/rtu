@@ -1,8 +1,13 @@
 import { Utils } from './utils'
 // import BufferList = require('bl')
 
+interface IDataType {
+    solarCell: { volt?: number; current?: number | null }
+}
 export class HexPowerInverter {
     // private bl = new BufferList()
+
+    public parsedData: IDataType = { solarCell: {} }
     private arr = new Array()
 
     constructor(public id: number) {}
@@ -57,7 +62,7 @@ export class HexPowerInverter {
         return true
     }
 
-    public parser(data: number[]) {
+    public parser(data: number[]): boolean {
         // TODO:
         // // if arr is empty
         // if (this.arr.length === 0 && data[0] === 0x06) {
@@ -68,6 +73,11 @@ export class HexPowerInverter {
         // }
         // if (condition) {
         // }
+
+        this.parsedData.solarCell.volt = 0x123
+        this.parsedData.solarCell.current = 0x124
+
+        return true
     }
 }
 
