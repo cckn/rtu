@@ -1,4 +1,5 @@
 import { Utils } from './utils'
+import { log } from 'util'
 // import BufferList = require('bl')
 
 interface IDataType {
@@ -31,6 +32,7 @@ interface IDataType {
         moduleTemp?: number
     }
 }
+
 interface IResponse {
     enq?: number
     address?: number
@@ -40,6 +42,7 @@ interface IResponse {
     checksum?: number
     eot?: number
 }
+
 export class HexPowerInverter {
     // private bl = new BufferList()
 
@@ -50,7 +53,7 @@ export class HexPowerInverter {
         solarInverterPower: {},
         sensor: {},
     }
-    private arr = new Array()
+    private buffer = new Array()
 
     constructor(public id: number) {}
 
@@ -106,48 +109,52 @@ export class HexPowerInverter {
 
     public parser(data: number[]): boolean {
         // TODO:
-        // // if arr is empty
-        // if (this.arr.length === 0 && data[0] === 0x06) {
-        //     // if data[0] is 0x06
-        //     // append data to array to data
-        // } else {
-        //     //append data to array
-        // }
-        // if (condition) {
-        // }
+        // if arr is empty
+
+        if (data[0] === 0x06) {
+            this.buffer = data
+        } else if (this.buffer.length !== 0) {
+            this.buffer = this.buffer.concat(data)
+        }
+        if (this.buffer[this.buffer.length - 1] !== 0x04) {
+            return false
+        }
+
         const ascii2hex = new Utils().ascii2hex
 
-        if (!this.verifyResponse(data)) {
+        if (!this.verifyResponse(this.buffer)) {
             return false
         }
         const res: IResponse = {}
-        res.enq = data[0]
-        res.address = ascii2hex(data.slice(1, 3))
-        res.cmd = data[3]
-        res.start = ascii2hex(data.slice(4, 8))
+        res.enq = this.buffer[0]
+        res.address = ascii2hex(this.buffer.slice(1, 3))
+        res.cmd = this.buffer[3]
+        res.start = ascii2hex(this.buffer.slice(4, 8))
         const temp = []
-        for (let index = 8; index < data.length - 5; index += 4) {
-            temp.push(ascii2hex(data.slice(index, index + 4)))
+        for (let index = 8; index < this.buffer.length - 5; index += 4) {
+            temp.push(ascii2hex(this.buffer.slice(index, index + 4)))
         }
         res.data = temp
-        res.checksum = ascii2hex(data.slice(data.length - 5, data.length - 1))
-        res.eot = data[data.length - 1]
+        res.checksum = ascii2hex(
+            this.buffer.slice(this.buffer.length - 5, this.buffer.length - 1)
+        )
+        res.eot = this.buffer[this.buffer.length - 1]
 
         // console.log(res)
 
         switch (res.start) {
             case 0x04:
-                console.log('Fault 정보 명령')
+                // console.log('Fault 정보 명령')
 
                 break
             case 0x20:
-                console.log('태양전지 계측 정보 명령')
+                // console.log('태양전지 계측 정보 명령')
                 this.parsedData.solarCell.volt = res.data[0]
                 this.parsedData.solarCell.current = res.data[1]
                 break
 
             case 0x50:
-                console.log('계통 계측 정보 명령')
+                // console.log('계통 계측 정보 명령')
                 this.parsedData.utilityLine.volt = {
                     rs: res.data[0],
                     st: res.data[1],
@@ -161,7 +168,7 @@ export class HexPowerInverter {
                 this.parsedData.utilityLine.frequency = res.data[6]
                 break
             case 0x60:
-                console.log('전력량 계측 정보 명령2')
+                // console.log('전력량 계측 정보 명령2')
                 this.parsedData.solarInverterPower.solarKW = res.data[0]
                 this.parsedData.solarInverterPower.totalKWh =
                     res.data[2] * 0xffff + res.data[1]
@@ -172,11 +179,11 @@ export class HexPowerInverter {
 
                 break
             case 0x1e0:
-                console.log('시스템 정보 명령 ')
+                // console.log('시스템 정보 명령 ')
 
                 break
             case 0x70:
-                console.log('태양전지 환경 계측 명령')
+                // console.log('태양전지 환경 계측 명령')
                 this.parsedData.sensor.tRadiation = res.data[0]
                 this.parsedData.sensor.hRadiation = res.data[1]
                 this.parsedData.sensor.outTemp = res.data[2]
@@ -184,9 +191,10 @@ export class HexPowerInverter {
                 break
 
             default:
-                console.log('알 수 없는 response')
+                // console.log('알 수 없는 response')
                 break
         }
+        this.buffer = []
 
         return true
     }

@@ -3,8 +3,6 @@ import { Utils } from '../src/utils'
 import { HexPowerInverter } from '../src/hexpower'
 import { Dummy } from './dummy'
 
-console.log(Dummy)
-
 describe('파서', () => {
     const dummyData = new Dummy().data
     it('태양전지 계측 정보 명령  Good', () => {
@@ -25,6 +23,16 @@ describe('파서', () => {
         const good: number[] = dummyData.sensor.good1
         const hp: HexPowerInverter = new HexPowerInverter(1)
         expect(hp.parser(good)).to.equal(true)
+        expect(hp.parsedData.sensor.tRadiation).to.equal(0x1123)
+        expect(hp.parsedData.sensor.hRadiation).to.equal(0x1125)
+        expect(hp.parsedData.sensor.outTemp).to.equal(0x1223)
+        expect(hp.parsedData.sensor.moduleTemp).to.equal(0x1225)
+    })
+    it('태양전지 환경 계측 명령 Splited Good ', () => {
+        const good: number[] = dummyData.sensor.good1
+        const hp: HexPowerInverter = new HexPowerInverter(1)
+        expect(hp.parser(good.slice(0, 10))).to.equal(false)
+        expect(hp.parser(good.slice(10))).to.equal(true)
         expect(hp.parsedData.sensor.tRadiation).to.equal(0x1123)
         expect(hp.parsedData.sensor.hRadiation).to.equal(0x1125)
         expect(hp.parsedData.sensor.outTemp).to.equal(0x1223)
