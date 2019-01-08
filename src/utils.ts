@@ -37,6 +37,14 @@ export class Utils {
         }
         return ret
     }
+
+    public sum(arr: number[]): number {
+        let sum = 0
+        arr.forEach((element) => {
+            sum += element
+        })
+        return sum
+    }
 }
 
 if (require.main === module) {

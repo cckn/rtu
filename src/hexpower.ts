@@ -2,12 +2,54 @@ import { Utils } from './utils'
 // import BufferList = require('bl')
 
 interface IDataType {
-    solarCell: { volt?: number; current?: number | null }
+    solarCell: { volt?: number; current?: number }
+    utilityLine: {
+        volt?: {
+            rs?: number
+            st?: number
+            tr?: number
+        }
+        cuttrent?: {
+            r?: number
+            s?: number
+            t?: number
+        }
+        frequency?: number
+    }
+    solarInverterPower: {
+        solarKW?: number
+        totalKWh?: number
+        currentKVa?: number
+        maxKW?: number
+        todayKWh?: number
+        invPF?: number
+    }
+    sensor: {
+        tRadiation?: number
+        hRadiation?: number
+        outTemp?: number
+        moduleTemp?: number
+    }
+}
+interface IResponse {
+    enq?: number
+    address?: number
+    cmd?: number
+    start?: number
+    data?: number[]
+    checksum?: number
+    eot?: number
 }
 export class HexPowerInverter {
     // private bl = new BufferList()
 
-    public parsedData: IDataType = { solarCell: {} }
+    public parsedData: IDataType = {
+        solarCell: {},
+        utilityLine: {},
+        // tslint:disable-next-line:object-literal-sort-keys
+        solarInverterPower: {},
+        sensor: {},
+    }
     private arr = new Array()
 
     constructor(public id: number) {}
@@ -73,9 +115,78 @@ export class HexPowerInverter {
         // }
         // if (condition) {
         // }
+        const ascii2hex = new Utils().ascii2hex
 
-        this.parsedData.solarCell.volt = 0x123
-        this.parsedData.solarCell.current = 0x124
+        if (!this.verifyResponse(data)) {
+            return false
+        }
+        const res: IResponse = {}
+        res.enq = data[0]
+        res.address = ascii2hex(data.slice(1, 3))
+        res.cmd = data[3]
+        res.start = ascii2hex(data.slice(4, 8))
+        const temp = []
+        for (let index = 8; index < data.length - 5; index += 4) {
+            temp.push(ascii2hex(data.slice(index, index + 4)))
+        }
+        res.data = temp
+        res.checksum = ascii2hex(data.slice(data.length - 5, data.length - 1))
+        res.eot = data[data.length - 1]
+
+        // console.log(res)
+
+        switch (res.start) {
+            case 0x04:
+                console.log('Fault 정보 명령')
+
+                break
+            case 0x20:
+                console.log('태양전지 계측 정보 명령')
+                this.parsedData.solarCell.volt = res.data[0]
+                this.parsedData.solarCell.current = res.data[1]
+                break
+
+            case 0x50:
+                console.log('계통 계측 정보 명령')
+                this.parsedData.utilityLine.volt = {
+                    rs: res.data[0],
+                    st: res.data[1],
+                    tr: res.data[2],
+                }
+                this.parsedData.utilityLine.cuttrent = {
+                    r: res.data[3],
+                    s: res.data[4],
+                    t: res.data[5],
+                }
+                this.parsedData.utilityLine.frequency = res.data[6]
+                break
+            case 0x60:
+                console.log('전력량 계측 정보 명령2')
+                this.parsedData.solarInverterPower.solarKW = res.data[0]
+                this.parsedData.solarInverterPower.totalKWh =
+                    res.data[2] * 0xffff + res.data[1]
+                this.parsedData.solarInverterPower.currentKVa = res.data[3]
+                this.parsedData.solarInverterPower.maxKW = res.data[4]
+                this.parsedData.solarInverterPower.todayKWh = res.data[5]
+                this.parsedData.solarInverterPower.invPF = res.data[6]
+
+                break
+            case 0x1e0:
+                console.log('시스템 정보 명령 ')
+
+                break
+            case 0x70:
+                console.log('태양전지 환경 계측 명령')
+                this.parsedData.sensor.tRadiation = res.data[0]
+                this.parsedData.sensor.hRadiation = res.data[1]
+                this.parsedData.sensor.outTemp = res.data[2]
+                this.parsedData.sensor.moduleTemp = res.data[3]
+                break
+
+            default:
+                console.log('알 수 없는 response')
+                break
+        }
 
         return true
     }

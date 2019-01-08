@@ -38,3 +38,64 @@ describe('Ascii to Hex', () => {
         expect(() => utils.ascii2hex([0x30])).to.not.throw()
     })
 })
+
+describe('sum', () => {
+    it('sum test', () => {
+        const sum = new Utils().sum
+        expect(sum([])).to.equal(0)
+        expect(sum([1])).to.equal(1)
+        expect(sum([1, 2])).to.equal(3)
+        expect(
+            sum([
+                0x30,
+                0x31,
+
+                0x52,
+
+                0x30,
+                0x30,
+                0x32,
+                0x30,
+
+                0x30,
+                0x31,
+                0x32,
+                0x33,
+                0x30,
+                0x31,
+                0x32,
+                0x34,
+            ])
+        ).to.equal(0x302)
+        expect(
+            sum([
+                0x30,
+                0x31,
+
+                0x52,
+
+                0x30,
+                0x30,
+                0x37,
+                0x30,
+
+                0x31,
+                0x31,
+                0x32,
+                0x33,
+                0x31,
+                0x31,
+                0x32,
+                0x35,
+                0x31,
+                0x32,
+                0x32,
+                0x33,
+                0x31,
+                0x32,
+                0x32,
+                0x35,
+            ])
+        ).to.equal(0x49C)
+    })
+})

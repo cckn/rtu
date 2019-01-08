@@ -6,14 +6,29 @@ import { Dummy } from './dummy'
 console.log(Dummy)
 
 describe('파서', () => {
-    const SolarCell = new Dummy().data.SolarCell
-    console.log(SolarCell)
-
-    it('full Frame ', () => {
-        const hp = new HexPowerInverter(1)
-        expect(hp.parser(SolarCell)).to.equal(true)
+    const dummyData = new Dummy().data
+    it('태양전지 계측 정보 명령  Good', () => {
+        const good: number[] = dummyData.SolarCell.good1
+        const hp: HexPowerInverter = new HexPowerInverter(1)
+        expect(hp.parser(good)).to.equal(true)
         expect(hp.parsedData.solarCell.volt).to.equal(0x123)
         expect(hp.parsedData.solarCell.current).to.equal(0x124)
+    })
+    it('태양전지 계측 정보 명령2 Good ', () => {
+        const good: number[] = dummyData.SolarCell.good2
+        const hp: HexPowerInverter = new HexPowerInverter(1)
+        expect(hp.parser(good)).to.equal(true)
+        expect(hp.parsedData.solarCell.volt).to.equal(0x123)
+        expect(hp.parsedData.solarCell.current).to.equal(0x125)
+    })
+    it('태양전지 환경 계측 명령 Good ', () => {
+        const good: number[] = dummyData.sensor.good1
+        const hp: HexPowerInverter = new HexPowerInverter(1)
+        expect(hp.parser(good)).to.equal(true)
+        expect(hp.parsedData.sensor.tRadiation).to.equal(0x1123)
+        expect(hp.parsedData.sensor.hRadiation).to.equal(0x1125)
+        expect(hp.parsedData.sensor.outTemp).to.equal(0x1223)
+        expect(hp.parsedData.sensor.moduleTemp).to.equal(0x1225)
     })
 })
 
