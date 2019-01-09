@@ -10,7 +10,9 @@ export class Serial {
             console.log('Error: ', err.message)
         })
 
-        this.serial.on('data', (data) => {})
+        this.serial.on('data', (data) => {
+            this.hexpower.parser(data)
+        })
     }
 
     public write(msg: number[]) {
@@ -18,7 +20,7 @@ export class Serial {
             if (err) {
                 return console.log('Error on write: ', err.message)
             }
-            console.log('message written')
+            // console.log('message written')
         })
     }
 }

@@ -4,7 +4,7 @@
     "description": "An application demonstrating TDD in TypeScript",
     "main": "index.js",
     "scripts": {
-        "start": "ts-node src/mqtt.ts",
+        "start": "ts-node src/app.ts",
         "test": "mocha --require ts-node/register --watch-extensions ts test/**/*.ts",
         "test-w": "mocha --require ts-node/register --watch-extensions ts test/**/*.ts -w"
     },
