@@ -45,10 +45,22 @@ export class Utils {
         })
         return sum
     }
+
+    public getmac(): Promise<number> {
+        return new Promise((resolve, reject) => {
+            require('getmac').getMac((err: any, macAddress: any) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(parseInt(macAddress.replace(/-/g, ''), 16))
+            })
+        })
+    }
 }
 
 if (require.main === module) {
     const utils = new Utils()
-    console.log(utils.ascii2hex([0x29]))
-    console.log(utils.ascii2hex([0x30]))
+    setTimeout(async () => {
+        console.log(await utils.getmac())
+    }, 1000)
 }
