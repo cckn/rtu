@@ -1,31 +1,41 @@
 import mqtt from 'mqtt'
 import { Utils } from './utils'
-// import os from 'os'
 
-const client = mqtt.connect('mqtt://192.168.0.2')
+export class Mqtt {
+    // private topic = `1018201609091504/1/1/14/${await new Utils().getmac()}/`
+    private client: mqtt.MqttClient
+    constructor(private host: string, private topic: string) {
+        this.client = mqtt.connect(host)
 
-client.on('connect', () => {
-    setTimeout(async () => {
-        const topic = `1018201609091504/1/1/14/${await new Utils().getmac()}/`
-
-        client.subscribe(topic, (err) => {
-            if (!err) {
-                client.publish(topic, 'Hello mqtt')
-            }
+        this.client.on('connect', () => {
+            this.client.subscribe(this.topic, (err: any) => {
+                // if (!err) {
+                //     this.client.publish(this.topic, 'Hello mqtt')
+                // }
+            })
+            console.log('MQTT Broker Connect')
         })
+
+        // this.client.on('message', (t: string, message: string) => {
+        //     // message is Buffer
+        //     console.log(`topic is ${t.toString()}`)
+
+        //     console.log(message.toString())
+        //     this.client.end()
+        // })
+    }
+    /**
+     * send
+     */
+    public pub(msg: string) {
+        this.client.publish(this.topic, msg)
+    }
+}
+
+new Utils().getmac().then((mac) => {
+    const mq = new Mqtt('mqtt://192.168.0.2', `1018201609091504/1/1/14/${mac}/`)
+
+    setInterval(() => {
+        mq.pub('Test')
     }, 1000)
 })
-
-client.on('message', (topic, message) => {
-    // message is Buffer
-    console.log(`topic is ${topic.toString()}`)
-
-    console.log(message.toString())
-    client.end()
-})
-
-// console.log(typeof JSON.parse(os.networkInterfaces()))
-
-// Topic : 1018201609091504/1/1/9/1908270597/
-// OID : 1018201609091504.1.1.9.1908270597
-// OID : 1018201609091504.1.1.14.1908270597
