@@ -21,7 +21,8 @@
                 },
                 "esSpecCompliant": true
             }
-        ]
+        ],
+        "variable-name": false
     },
     "rulesDirectory": []
 }
