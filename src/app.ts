@@ -33,3 +33,4 @@ setInterval(() => {
 console.log(reqFrameArray)
 
 const serial = new Serial('COM3')
+serial.registCallback(hp.parser)

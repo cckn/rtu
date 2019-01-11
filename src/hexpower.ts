@@ -74,7 +74,7 @@ export class Hexpower {
     // }
     private buffer = new Array()
 
-    constructor(public id: number) {}
+    constructor(private id: number) {}
 
     public calcCRC(data: number[], startIdx?: number, endIdx?: number): number {
         const start = startIdx ? startIdx : 1
@@ -116,9 +116,9 @@ export class Hexpower {
         if (data[0] !== 0x06 || data.slice(-1)[0] !== 0x04) {
             return false
         }
-        console.log(
-            `tmp : ${tmp}, CRC = : ${this.calcCRC(data, 1, data.length - 5)}`
-        )
+        // console.log(
+        // `tmp : ${tmp}, CRC = : ${this.calcCRC(data, 1, data.length - 5)}`
+        // )
 
         if (this.calcCRC(data, 1, data.length - 5) !== tmp) {
             return false
@@ -127,7 +127,7 @@ export class Hexpower {
     }
 
     public parser(data: number[]): boolean {
-        console.log(data)
+        // console.log(data)
         data = Array.from(data)
 
         if (data[0] === 0x06) {
@@ -158,21 +158,21 @@ export class Hexpower {
         )
         this.res.eot = this.buffer[this.buffer.length - 1]
 
-        console.log(this.res)
+        // console.log(this.res)
 
         switch (this.res.start) {
             case 0x04:
-                console.log('Fault 정보 명령')
+                // console.log('Fault 정보 명령')
 
                 break
             case 0x20:
-                console.log('태양전지 계측 정보 명령')
+                // console.log('태양전지 계측 정보 명령')
                 parsedData.solarCell.volt = this.res.data[0]
                 parsedData.solarCell.current = this.res.data[1]
                 break
 
             case 0x50:
-                console.log('계통 계측 정보 명령')
+                // console.log('계통 계측 정보 명령')
                 parsedData.utilityLine.rsVolt = this.res.data[0]
                 parsedData.utilityLine.stVolt = this.res.data[1]
                 parsedData.utilityLine.trVolt = this.res.data[2]
@@ -180,11 +180,11 @@ export class Hexpower {
                 parsedData.utilityLine.sCurrent = this.res.data[4]
                 parsedData.utilityLine.tCurrent = this.res.data[5]
                 parsedData.utilityLine.frequency = this.res.data[6]
-                console.log(parsedData)
+                // console.log(parsedData)
 
                 break
             case 0x60:
-                console.log('전력량 계측 정보 명령2')
+                // console.log('전력량 계측 정보 명령2')
                 parsedData.solarInverterPower.solarKW = this.res.data[0]
                 parsedData.solarInverterPower.totalKWh =
                     this.res.data[2] * 0xffff + this.res.data[1]
@@ -195,11 +195,11 @@ export class Hexpower {
 
                 break
             case 0x1e0:
-                console.log('시스템 정보 명령 ')
+                // console.log('시스템 정보 명령 ')
 
                 break
             case 0x70:
-                console.log('태양전지 환경 계측 명령')
+                // console.log('태양전지 환경 계측 명령')
                 parsedData.sensor.tRadiation = this.res.data[0]
                 parsedData.sensor.hRadiation = this.res.data[1]
                 parsedData.sensor.outTemp = this.res.data[2]
@@ -207,7 +207,7 @@ export class Hexpower {
                 break
 
             default:
-                console.log('알 수 없는 response')
+                // console.log('알 수 없는 response')
                 break
         }
         this.buffer = []
@@ -277,8 +277,8 @@ export class Hexpower {
             reportData.sCurrent = parsedData.utilityLine.sCurrent
             reportData.tCurrent = parsedData.utilityLine.tCurrent
 
-            console.log(reportData)
-            console.log(parsedData)
+            // console.log(reportData)
+            // console.log(parsedData)
             return true
         }
         return false
@@ -287,5 +287,5 @@ export class Hexpower {
 
 if (require.main === module) {
     const hp = new Hexpower(1)
-    console.log(hp.report())
+    // console.log(hp.report())
 }

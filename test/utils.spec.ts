@@ -232,6 +232,6 @@ describe('sum', () => {
                 48,
                 56,
             ])
-        ).to.equal(0)
+        ).to.equal(1958)
     })
 })
