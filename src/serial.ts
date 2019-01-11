@@ -1,9 +1,9 @@
 import SerialPort = require('serialport')
-import { HexPowerInverter } from './hexpower'
+import { Hexpower } from './hexpower'
 
 export class Serial {
     private serial: SerialPort
-    private hexpower: HexPowerInverter = new HexPowerInverter(1)
+    private hexpower: Hexpower = new Hexpower(1)
     constructor(private port: string) {
         this.serial = new SerialPort(this.port)
         this.serial.on('error', (err: any) => {

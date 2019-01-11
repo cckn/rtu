@@ -1,7 +1,7 @@
 import { Mqtt } from './mqtt'
 import { Utils } from './utils'
 import { Serial } from './serial'
-import { HexPowerInverter } from './hexpower'
+import { Hexpower } from './hexpower'
 import { setInterval } from 'timers'
 
 const HOST = 'mqtt://192.168.0.2'
@@ -9,7 +9,7 @@ const INVERTER_ID = 1
 
 const utils = new Utils()
 
-const hp = new HexPowerInverter(INVERTER_ID)
+const hp = new Hexpower(INVERTER_ID)
 
 utils.getmac().then((mac) => {
     const mqtt = new Mqtt(HOST, `1018201609091504/1/1/14/${mac}/`)

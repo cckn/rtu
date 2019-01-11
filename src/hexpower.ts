@@ -61,7 +61,7 @@ export let parsedData: IDataType = {
 }
 let reportData: IReportData = {}
 
-export class HexPowerInverter {
+export class Hexpower {
     // private bl = new BufferList()
     public res: IResponse = {}
 
@@ -286,6 +286,6 @@ export class HexPowerInverter {
 }
 
 if (require.main === module) {
-    const hp = new HexPowerInverter(1)
+    const hp = new Hexpower(1)
     console.log(hp.report())
 }

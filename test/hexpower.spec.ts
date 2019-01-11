@@ -1,27 +1,27 @@
 import { expect } from 'chai'
 import { Utils } from '../src/utils'
-import { HexPowerInverter, parsedData } from '../src/hexpower'
+import { Hexpower, parsedData } from '../src/hexpower'
 import { Dummy } from './dummy'
 
 describe('파서', () => {
     const dummyData = new Dummy().data
     it('태양전지 계측 정보 명령  Good', () => {
         const good: number[] = dummyData.SolarCell.good1
-        const hp: HexPowerInverter = new HexPowerInverter(1)
+        const hp: Hexpower = new Hexpower(1)
         expect(hp.parser(good)).to.equal(true)
         expect(parsedData.solarCell.volt).to.equal(0x123)
         expect(parsedData.solarCell.current).to.equal(0x124)
     })
     it('태양전지 계측 정보 명령2 Good ', () => {
         const good: number[] = dummyData.SolarCell.good2
-        const hp: HexPowerInverter = new HexPowerInverter(1)
+        const hp: Hexpower = new Hexpower(1)
         expect(hp.parser(good)).to.equal(true)
         expect(parsedData.solarCell.volt).to.equal(0x123)
         expect(parsedData.solarCell.current).to.equal(0x125)
     })
     it('태양전지 환경 계측 명령 Good ', () => {
         const good: number[] = dummyData.sensor.good1
-        const hp: HexPowerInverter = new HexPowerInverter(1)
+        const hp: Hexpower = new Hexpower(1)
         expect(hp.parser(good)).to.equal(true)
         expect(parsedData.sensor.tRadiation).to.equal(0x1123)
         expect(parsedData.sensor.hRadiation).to.equal(0x1125)
@@ -30,7 +30,7 @@ describe('파서', () => {
     })
     it('태양전지 환경 계측 명령 Splited Good ', () => {
         const good: number[] = dummyData.sensor.good1
-        const hp: HexPowerInverter = new HexPowerInverter(1)
+        const hp: Hexpower = new Hexpower(1)
         expect(hp.parser(good.slice(0, 10))).to.equal(false)
         expect(hp.parser(good.slice(10))).to.equal(true)
         expect(parsedData.sensor.tRadiation).to.equal(0x1123)
@@ -42,7 +42,7 @@ describe('파서', () => {
 
 describe('calc CRC', () => {
     it('입력된 데이터 sum 후 return 1', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(
             hp.calcCRC(
                 [
@@ -73,7 +73,7 @@ describe('calc CRC', () => {
         ).to.equal(0x30d)
     })
     it('입력된 데이터 sum 후 return 2', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(
             hp.calcCRC(
                 [
@@ -105,7 +105,7 @@ describe('calc CRC', () => {
         ).to.equal(0x1db)
     })
     it('입력된 데이터 sum 후 return 1(start end 생략)', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(
             hp.calcCRC([
                 0x06,
@@ -132,7 +132,7 @@ describe('calc CRC', () => {
         ).to.equal(0x30d)
     })
     it('입력된 데이터 sum 후 return 2(start end 생략)', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(
             hp.calcCRC([
                 0x05, // 0 ENQ
@@ -186,34 +186,34 @@ describe('패킷 검증 ', () => {
     ]
 
     it('Good 패킷 검증 ', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         const goodpacket = data
         expect(hp.verifyResponse(data)).to.equal(true)
     })
 
     it('Bad 패킷 검증 (CRC BAD)', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         const badPacket = data.slice()
         badPacket[18] = 0x44
 
         expect(hp.verifyResponse(badPacket)).to.equal(false)
     })
     it('Bad 패킷 검증 (START BAD)', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         const badPacket = data.slice()
         badPacket[0] = 0x05
 
         expect(hp.verifyResponse(badPacket)).to.equal(false)
     })
     it('Bad 패킷 검증 (END BAD)', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         const badPacket = data.slice()
         badPacket[20] = 0x03
 
         expect(hp.verifyResponse(badPacket)).to.equal(false)
     })
     it.skip('Bad 패킷 검증 (length BAD)', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         const badPacket = data.slice()
         // badPacket[18] = 0x44
 
@@ -223,14 +223,14 @@ describe('패킷 검증 ', () => {
 
 describe('HexPower Inverter', () => {
     it('생성자 확인', () => {
-        const hp1 = new HexPowerInverter(1)
+        const hp1 = new Hexpower(1)
         expect(hp1.id).to.equal(1)
-        const hp2 = new HexPowerInverter(0x1f)
+        const hp2 = new Hexpower(0x1f)
         expect(hp2.id).to.equal(0x1f)
     })
 
     it('Fault 정보 명령 request frame 생성 ', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(hp.makeFrame(0x52, 0x04, 0x04)).to.deep.equal([
             0x05, // 0 ENQ
 
@@ -257,7 +257,7 @@ describe('HexPower Inverter', () => {
     })
 
     it('태양전지 계층 정보 명령 request frame 생성 ', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(hp.makeFrame(0x52, 0x20, 0x02)).to.deep.equal([
             0x05, // 0 ENQ
 
@@ -284,7 +284,7 @@ describe('HexPower Inverter', () => {
     })
 
     it('계통 계측 정보 명령 request frame 생성 ', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(hp.makeFrame(0x52, 0x50, 0x07)).to.deep.equal([
             0x05,
 
@@ -311,7 +311,7 @@ describe('HexPower Inverter', () => {
     })
 
     it('전력량 계측 정보 명령2 request frame 생성 ', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(hp.makeFrame(0x52, 0x60, 0x08)).to.deep.equal([
             0x05, // 0 ENQ
 
@@ -338,7 +338,7 @@ describe('HexPower Inverter', () => {
     })
 
     it('시스템 정보 명령 request frame 생성 ', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(hp.makeFrame(0x52, 0x1e0, 0x3)).to.deep.equal([
             0x05, // 0 ENQ
 
@@ -365,7 +365,7 @@ describe('HexPower Inverter', () => {
     })
 
     it('태양전지 환경 계측 명령 request frame 생성 ', () => {
-        const hp = new HexPowerInverter(1)
+        const hp = new Hexpower(1)
         expect(hp.makeFrame(0x52, 0x70, 0x04)).to.deep.equal([
             0x05, // 0 ENQ
 

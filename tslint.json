@@ -22,7 +22,8 @@
                 "esSpecCompliant": true
             }
         ],
-        "variable-name": false
+        "variable-name": false,
+        "prefer-for-of": false
     },
     "rulesDirectory": []
 }
