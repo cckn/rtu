@@ -1,12 +1,27 @@
 import { Utils } from '../src/utils'
-import { Serial } from '../src/serial'
+// import { Serial } from '../src/serial'
+import SerialPort = require('serialport')
 
+// let buffer: number[] = []
 export class HexpowerSimulator {
-    private buffer: number[] = []
-    private serial = new Serial('COM12')
+    private serial: SerialPort
 
-    constructor() {
-        this.serial.registCallback(this.parse)
+    private buf: number[] = []
+    // private serial = new Serial('COM12')
+
+    constructor(private port: string) {
+        // this.serial.registCallback(this.serialCallback)
+        this.buf = [0x01]
+        console.log(this.buf)
+        this.serial = new SerialPort(this.port)
+        this.serial.on('error', (err: any) => {
+            console.log('Error: ', err.message)
+        })
+        this.serial.on('data', (data) => {
+            // console.log(data)
+
+            this.serialCallback(data)
+        })
     }
 
     /**
@@ -49,28 +64,35 @@ export class HexpowerSimulator {
      * serialCallback
      */
     public serialCallback(data: number[]): boolean {
-        // console.log(data)
         data = Array.from(data)
+        console.log(data)
 
         if (data[0] === 0x05) {
-            this.buffer = data
-        } else if (this.buffer.length !== 0) {
-            this.buffer = this.buffer.concat(data)
+            // console.log(`buffer : ${buffer}, data : ${data}`)
+
+            this.buf = data
+        } else if (this.buf.length !== 0) {
+            this.buf = this.buf.concat(data)
         }
 
-        if (this.buffer[this.buffer.length - 1] !== 0x04) {
+        if (this.buf[this.buf.length - 1] !== 0x04) {
             return false
         }
+        console.log(`buffer : ${this.buf}, data : ${data}`)
 
-        this.serial.write(this.parse(this.buffer))
+        this.serial.write(this.parse(this.buf), (err: any) => {
+            if (err) {
+                return console.log('Error on write: ', err.message)
+            }
+        })
 
-        this.buffer = []
+        this.buf = []
         return true
     }
 }
 
 if (require.main === module) {
-    const hp = new HexpowerSimulator()
+    const hp = new HexpowerSimulator('COM12')
 
     // console.log(hp.report())
 }

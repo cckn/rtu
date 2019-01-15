@@ -21,6 +21,8 @@ export class Serial {
 
     public registCallback(callback: (data: number[]) => any): void {
         this.serial.on('data', (data) => {
+            // console.log(data)
+
             callback(data)
         })
     }
