@@ -1,5 +1,8 @@
 import { Utils } from './utils'
 import { log } from 'util'
+import SerialPort = require('serialport')
+import { Serial } from './serial'
+
 // import BufferList = require('bl')
 
 interface IDataType {
@@ -52,18 +55,19 @@ interface IReportData {
     tCurrent?: number | undefined
 }
 
-export let parsedData: IDataType = {
-    solarCell: {},
-    utilityLine: {},
-    // tslint:disable-next-line:object-literal-sort-keys
-    solarInverterPower: {},
-    sensor: {},
-}
-let reportData: IReportData = {}
-
 export class Hexpower {
     // private bl = new BufferList()
     public res: IResponse = {}
+    private serial?: SerialPort
+
+    private parsedData: IDataType = {
+        solarCell: {},
+        utilityLine: {},
+        // tslint:disable-next-line:object-literal-sort-keys
+        solarInverterPower: {},
+        sensor: {},
+    }
+    private reportData: IReportData = {}
 
     // public parsedData: IDataType = {
     //     solarCell: {},
@@ -75,6 +79,31 @@ export class Hexpower {
     private buffer = new Array()
 
     constructor(private id: number) {}
+
+    /**
+     * serialInit
+     */
+    public serialInit(port: string) {
+        this.serial = new SerialPort(port)
+        this.serial.on('error', (err: any) => {
+            console.log('Error: ', err.message)
+        })
+        this.serial.on('data', (data) => {
+            this.parser(data)
+        })
+
+        const reqFrameArray = [
+            this.makeFrame(0x52, 0x50, 0x07),
+            this.makeFrame(0x52, 0x60, 0x08),
+        ]
+        let count = 0
+        setInterval(() => {
+            if (this.serial) {
+                this.serial.write(reqFrameArray[count % reqFrameArray.length])
+            }
+            count++
+        }, 1000)
+    }
 
     public calcCRC(data: number[], startIdx?: number, endIdx?: number): number {
         const start = startIdx ? startIdx : 1
@@ -167,31 +196,31 @@ export class Hexpower {
                 break
             case 0x20:
                 // console.log('태양전지 계측 정보 명령')
-                parsedData.solarCell.volt = this.res.data[0]
-                parsedData.solarCell.current = this.res.data[1]
+                this.parsedData.solarCell.volt = this.res.data[0]
+                this.parsedData.solarCell.current = this.res.data[1]
                 break
 
             case 0x50:
                 // console.log('계통 계측 정보 명령')
-                parsedData.utilityLine.rsVolt = this.res.data[0]
-                parsedData.utilityLine.stVolt = this.res.data[1]
-                parsedData.utilityLine.trVolt = this.res.data[2]
-                parsedData.utilityLine.rCurrent = this.res.data[3]
-                parsedData.utilityLine.sCurrent = this.res.data[4]
-                parsedData.utilityLine.tCurrent = this.res.data[5]
-                parsedData.utilityLine.frequency = this.res.data[6]
-                // console.log(parsedData)
+                this.parsedData.utilityLine.rsVolt = this.res.data[0]
+                this.parsedData.utilityLine.stVolt = this.res.data[1]
+                this.parsedData.utilityLine.trVolt = this.res.data[2]
+                this.parsedData.utilityLine.rCurrent = this.res.data[3]
+                this.parsedData.utilityLine.sCurrent = this.res.data[4]
+                this.parsedData.utilityLine.tCurrent = this.res.data[5]
+                this.parsedData.utilityLine.frequency = this.res.data[6]
+                // console.log(this.parsedData)
 
                 break
             case 0x60:
                 // console.log('전력량 계측 정보 명령2')
-                parsedData.solarInverterPower.solarKW = this.res.data[0]
-                parsedData.solarInverterPower.totalKWh =
+                this.parsedData.solarInverterPower.solarKW = this.res.data[0]
+                this.parsedData.solarInverterPower.totalKWh =
                     this.res.data[2] * 0xffff + this.res.data[1]
-                parsedData.solarInverterPower.currentKVa = this.res.data[3]
-                parsedData.solarInverterPower.maxKW = this.res.data[4]
-                parsedData.solarInverterPower.todayKWh = this.res.data[5]
-                parsedData.solarInverterPower.invPF = this.res.data[7]
+                this.parsedData.solarInverterPower.currentKVa = this.res.data[3]
+                this.parsedData.solarInverterPower.maxKW = this.res.data[4]
+                this.parsedData.solarInverterPower.todayKWh = this.res.data[5]
+                this.parsedData.solarInverterPower.invPF = this.res.data[7]
 
                 break
             case 0x1e0:
@@ -200,16 +229,24 @@ export class Hexpower {
                 break
             case 0x70:
                 // console.log('태양전지 환경 계측 명령')
-                parsedData.sensor.tRadiation = this.res.data[0]
-                parsedData.sensor.hRadiation = this.res.data[1]
-                parsedData.sensor.outTemp = this.res.data[2]
-                parsedData.sensor.moduleTemp = this.res.data[3]
+                this.parsedData.sensor.tRadiation = this.res.data[0]
+                this.parsedData.sensor.hRadiation = this.res.data[1]
+                this.parsedData.sensor.outTemp = this.res.data[2]
+                this.parsedData.sensor.moduleTemp = this.res.data[3]
                 break
 
             default:
                 // console.log('알 수 없는 response')
                 break
         }
+        // if (this.serial) {
+        //     this.serial.write(this.report(), (err: any) => {
+        //         if (err) {
+        //             return console.log('Error on write: ', err.message)
+        //         }
+        //     })
+        // }
+
         this.buffer = []
 
         return true
@@ -224,26 +261,25 @@ export class Hexpower {
             // tslint:disable-next-line:max-line-length
             const format =
                 `{"t":1,"d":[{"o":3316,"i":0,"e":[{"n":"5700","v":0.0},{"n":"5701","sv":"V"}]},{"o":3317,"i":0,"e":[{"n":"5700","v":0.0},{"n":"5701","sv":"A"}]},{"o":3328,"i":0,"e":[{"n":"5700","v":0},{"n":"5701","sv":"W"}]},{"o":3316,"i":1,"e":[{"n":"5700","v":0.0},{"n":"5701","sv":"V"}]},{"o":3317,"i":1,"e":[{"n":"5700","v":0.0},{"n":"5701","sv":"A"}]},{"o":3328,"i":1,"e":[{"n":"5700","v":0},{"n":"5701","sv":"W"}]},{"o":3305,"i":0,"e":` +
-                `[{"n":"5805","v":${reportData.total}},` +
-                `{"n":"5800","v":${reportData.activePower}},` +
-                `{"n":"5810","v":${reportData.reactivePower}}]},` +
-                `{"o":10242,"i":0,"e":[
-            ` +
-                `{"n":"49","v":${reportData.frquency}},` +
-                `{"n":"4","v":${reportData.rsVolt}},` +
-                `{"n":"5","v":${reportData.rCurrent}},` +
-                `{"n":"14","v":${reportData.stVolt}},` +
-                `{"n":"15","v":${reportData.sCurrent}},` +
-                `{"n":"24","v":${reportData.trVolt}},` +
-                `{"n":"25","v":${reportData.tCurrent}}]}]}`
-            parsedData = {
+                `[{"n":"5805","v":${this.reportData.total}},` +
+                `{"n":"5800","v":${this.reportData.activePower}},` +
+                `{"n":"5810","v":${this.reportData.reactivePower}}]},` +
+                `{"o":10242,"i":0,"e":[` +
+                `{"n":"49","v":${this.reportData.frquency}},` +
+                `{"n":"4","v":${this.reportData.rsVolt}},` +
+                `{"n":"5","v":${this.reportData.rCurrent}},` +
+                `{"n":"14","v":${this.reportData.stVolt}},` +
+                `{"n":"15","v":${this.reportData.sCurrent}},` +
+                `{"n":"24","v":${this.reportData.trVolt}},` +
+                `{"n":"25","v":${this.reportData.tCurrent}}]}]}`
+            this.parsedData = {
                 solarCell: {},
                 utilityLine: {},
                 // tslint:disable-next-line:object-literal-sort-keys
                 solarInverterPower: {},
                 sensor: {},
             }
-            reportData = {}
+            this.reportData = {}
 
             return format
         }
@@ -253,29 +289,29 @@ export class Hexpower {
         // 필요한 데이터들 모아오자.
 
         if (
-            parsedData.solarInverterPower.totalKWh &&
-            parsedData.solarInverterPower.currentKVa &&
-            parsedData.solarInverterPower.invPF &&
-            parsedData.solarInverterPower.currentKVa &&
-            parsedData.utilityLine.frequency &&
-            parsedData.utilityLine.rsVolt &&
-            parsedData.utilityLine.rCurrent
+            this.parsedData.solarInverterPower.totalKWh &&
+            this.parsedData.solarInverterPower.currentKVa &&
+            this.parsedData.solarInverterPower.invPF &&
+            this.parsedData.solarInverterPower.currentKVa &&
+            this.parsedData.utilityLine.frequency &&
+            this.parsedData.utilityLine.rsVolt &&
+            this.parsedData.utilityLine.rCurrent
         ) {
-            reportData.total = parsedData.solarInverterPower.totalKWh
-            reportData.activePower = parsedData.solarInverterPower.currentKVa
+            this.reportData.total = this.parsedData.solarInverterPower.totalKWh
+            this.reportData.activePower = this.parsedData.solarInverterPower.currentKVa
 
-            reportData.reactivePower =
-                ((100 - parsedData.solarInverterPower.invPF) / 100) *
-                parsedData.solarInverterPower.currentKVa *
+            this.reportData.reactivePower =
+                ((100 - this.parsedData.solarInverterPower.invPF) / 100) *
+                this.parsedData.solarInverterPower.currentKVa *
                 -1
 
-            reportData.frquency = parsedData.utilityLine.frequency
-            reportData.rsVolt = parsedData.utilityLine.rsVolt
-            reportData.stVolt = parsedData.utilityLine.stVolt
-            reportData.trVolt = parsedData.utilityLine.trVolt
-            reportData.rCurrent = parsedData.utilityLine.rCurrent
-            reportData.sCurrent = parsedData.utilityLine.sCurrent
-            reportData.tCurrent = parsedData.utilityLine.tCurrent
+            this.reportData.frquency = this.parsedData.utilityLine.frequency
+            this.reportData.rsVolt = this.parsedData.utilityLine.rsVolt
+            this.reportData.stVolt = this.parsedData.utilityLine.stVolt
+            this.reportData.trVolt = this.parsedData.utilityLine.trVolt
+            this.reportData.rCurrent = this.parsedData.utilityLine.rCurrent
+            this.reportData.sCurrent = this.parsedData.utilityLine.sCurrent
+            this.reportData.tCurrent = this.parsedData.utilityLine.tCurrent
 
             // console.log(reportData)
             // console.log(parsedData)
@@ -287,5 +323,5 @@ export class Hexpower {
 
 if (require.main === module) {
     const hp = new Hexpower(1)
-    // console.log(hp.report())
+    console.log(hp.report())
 }

@@ -82,6 +82,8 @@ export class HexpowerSimulator {
                 return false
             }
 
+            console.log(this.buf)
+
             this.serial.write(this.parse(this.buf), (err: any) => {
                 if (err) {
                     return console.log('Error on write: ', err.message)

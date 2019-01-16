@@ -6,7 +6,8 @@
     "scripts": {
         "start": "ts-node src/app.ts",
         "test": "mocha --require ts-node/register --watch-extensions ts test/**/*.ts",
-        "test-w": "mocha --require ts-node/register --watch-extensions ts test/**/*.ts -w"
+        "test-w": "mocha --require ts-node/register --watch-extensions ts test/**/*.ts -w",
+        "simulator": "ts-node src/hexpowerSimulator.ts"
     },
     "author": "TheDeveloperCollective",
     "license": "ISC",
