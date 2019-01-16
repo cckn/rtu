@@ -58,15 +58,15 @@ interface IReportData {
 export class Hexpower {
     // private bl = new BufferList()
     public res: IResponse = {}
-    private serial?: SerialPort
-
-    private parsedData: IDataType = {
+    public parsedData: IDataType = {
         solarCell: {},
         utilityLine: {},
         // tslint:disable-next-line:object-literal-sort-keys
         solarInverterPower: {},
         sensor: {},
     }
+    public uid: string = ''
+    private serial?: SerialPort
     private reportData: IReportData = {}
 
     // public parsedData: IDataType = {
@@ -78,7 +78,7 @@ export class Hexpower {
     // }
     private buffer = new Array()
 
-    constructor(private id: number) {}
+    constructor(public id: number) {}
 
     /**
      * serialInit

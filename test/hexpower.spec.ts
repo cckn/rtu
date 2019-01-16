@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { Utils } from '../src/utils'
-import { Hexpower, parsedData } from '../src/hexpower'
+import { Hexpower } from '../src/hexpower'
 import { Dummy } from './dummy'
 
 describe('파서', () => {
@@ -9,34 +9,34 @@ describe('파서', () => {
         const good: number[] = dummyData.SolarCell.good1
         const hp: Hexpower = new Hexpower(1)
         expect(hp.parser(good)).to.equal(true)
-        expect(parsedData.solarCell.volt).to.equal(0x123)
-        expect(parsedData.solarCell.current).to.equal(0x124)
+        expect(hp.parsedData.solarCell.volt).to.equal(0x123)
+        expect(hp.parsedData.solarCell.current).to.equal(0x124)
     })
     it('태양전지 계측 정보 명령2 Good ', () => {
         const good: number[] = dummyData.SolarCell.good2
         const hp: Hexpower = new Hexpower(1)
         expect(hp.parser(good)).to.equal(true)
-        expect(parsedData.solarCell.volt).to.equal(0x123)
-        expect(parsedData.solarCell.current).to.equal(0x125)
+        expect(hp.parsedData.solarCell.volt).to.equal(0x123)
+        expect(hp.parsedData.solarCell.current).to.equal(0x125)
     })
     it('태양전지 환경 계측 명령 Good ', () => {
         const good: number[] = dummyData.sensor.good1
         const hp: Hexpower = new Hexpower(1)
         expect(hp.parser(good)).to.equal(true)
-        expect(parsedData.sensor.tRadiation).to.equal(0x1123)
-        expect(parsedData.sensor.hRadiation).to.equal(0x1125)
-        expect(parsedData.sensor.outTemp).to.equal(0x1223)
-        expect(parsedData.sensor.moduleTemp).to.equal(0x1225)
+        expect(hp.parsedData.sensor.tRadiation).to.equal(0x1123)
+        expect(hp.parsedData.sensor.hRadiation).to.equal(0x1125)
+        expect(hp.parsedData.sensor.outTemp).to.equal(0x1223)
+        expect(hp.parsedData.sensor.moduleTemp).to.equal(0x1225)
     })
     it('태양전지 환경 계측 명령 Splited Good ', () => {
         const good: number[] = dummyData.sensor.good1
         const hp: Hexpower = new Hexpower(1)
         expect(hp.parser(good.slice(0, 10))).to.equal(false)
         expect(hp.parser(good.slice(10))).to.equal(true)
-        expect(parsedData.sensor.tRadiation).to.equal(0x1123)
-        expect(parsedData.sensor.hRadiation).to.equal(0x1125)
-        expect(parsedData.sensor.outTemp).to.equal(0x1223)
-        expect(parsedData.sensor.moduleTemp).to.equal(0x1225)
+        expect(hp.parsedData.sensor.tRadiation).to.equal(0x1123)
+        expect(hp.parsedData.sensor.hRadiation).to.equal(0x1125)
+        expect(hp.parsedData.sensor.outTemp).to.equal(0x1223)
+        expect(hp.parsedData.sensor.moduleTemp).to.equal(0x1225)
     })
 })
 

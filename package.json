@@ -22,9 +22,11 @@
     },
     "dependencies": {
         "@serialport/parser-readline": "^2.0.2",
+        "@types/big-integer": "0.0.31",
         "@types/bl": "^2.1.0",
         "@types/node": "^10.12.18",
         "@types/serialport": "^7.0.1",
+        "big-integer": "^1.6.40",
         "bl": "^2.1.2",
         "getmac": "^1.4.6",
         "mqtt": "^2.18.8",
