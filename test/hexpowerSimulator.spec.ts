@@ -3,7 +3,7 @@ import { Hexpower } from '../src/hexpower'
 import { expect } from 'chai'
 import { Utils } from '../src/utils'
 
-describe.only('HexpowerSimulator', () => {
+describe('HexpowerSimulator', () => {
     const simulator = new HexpowerSimulator()
     const ascii2Hex = new Utils().ascii2hex
 
@@ -89,14 +89,14 @@ describe.only('HexpowerSimulator', () => {
                 )
             }
         })
-        it.only('callback fucntion', () => {
+        it.skip('callback fucntion', () => {
             for (let index = 0; index < requestFrame.length; index++) {
                 expect(
                     simulator.serialCallback(requestFrame[index])
                 ).to.deep.equal(true)
             }
         })
-        it.only('splited data callback fucntion', () => {
+        it.skip('splited data callback fucntion', () => {
             for (let index = 0; index < requestFrame.length; index++) {
                 expect(
                     simulator.serialCallback(requestFrame[index].slice(0, 5))

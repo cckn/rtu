@@ -4,22 +4,23 @@ import SerialPort = require('serialport')
 
 // let buffer: number[] = []
 export class HexpowerSimulator {
-    private serial: SerialPort
-
+    private serial?: SerialPort
     private buf: number[] = []
     // private serial = new Serial('COM12')
 
-    constructor(private port: string) {
+    constructor() {
         // this.serial.registCallback(this.serialCallback)
-        this.buf = [0x01]
-        console.log(this.buf)
-        this.serial = new SerialPort(this.port)
+        // console.log(this.buf)
+    }
+    /**
+     * serialInit
+     */
+    public serialInit(port: string) {
+        this.serial = new SerialPort(port)
         this.serial.on('error', (err: any) => {
             console.log('Error: ', err.message)
         })
         this.serial.on('data', (data) => {
-            // console.log(data)
-
             this.serialCallback(data)
         })
     }
@@ -64,35 +65,39 @@ export class HexpowerSimulator {
      * serialCallback
      */
     public serialCallback(data: number[]): boolean {
-        data = Array.from(data)
-        // console.log(data)
-        console.log(`buffer : ${this.buf}, data : ${data}`)
+        if (this.serial) {
+            data = Array.from(data)
+            // console.log(data)
+            console.log(`buffer : ${this.buf}, data : ${data}`)
 
-        if (data[0] === 0x05) {
-            // console.log(`buffer : ${buffer}, data : ${data}`)
+            if (data[0] === 0x05) {
+                // console.log(`buffer : ${buffer}, data : ${data}`)
 
-            this.buf = data
-        } else if (this.buf.length !== 0) {
-            this.buf = this.buf.concat(data)
-        }
-
-        if (this.buf[this.buf.length - 1] !== 0x04) {
-            return false
-        }
-
-        this.serial.write(this.parse(this.buf), (err: any) => {
-            if (err) {
-                return console.log('Error on write: ', err.message)
+                this.buf = data
+            } else if (this.buf.length !== 0) {
+                this.buf = this.buf.concat(data)
             }
-        })
 
-        this.buf = []
-        return true
+            if (this.buf[this.buf.length - 1] !== 0x04) {
+                return false
+            }
+
+            this.serial.write(this.parse(this.buf), (err: any) => {
+                if (err) {
+                    return console.log('Error on write: ', err.message)
+                }
+            })
+
+            this.buf = []
+            return true
+        }
+        return false
     }
 }
 
 if (require.main === module) {
-    const hp = new HexpowerSimulator('COM12')
+    const hp = new HexpowerSimulator()
+    hp.serialInit('COM12')
 
     // console.log(hp.report())
 }
