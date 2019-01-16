@@ -31,7 +31,7 @@ export class Utils {
             str += String.fromCharCode(parseInt(hex.substr(i, 2), 16))
         }
 
-        console.log(str)
+        // console.log(str)
 
         const ret = parseInt(str, 16)
         if (isNaN(ret)) {

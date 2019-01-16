@@ -65,7 +65,8 @@ export class HexpowerSimulator {
      */
     public serialCallback(data: number[]): boolean {
         data = Array.from(data)
-        console.log(data)
+        // console.log(data)
+        console.log(`buffer : ${this.buf}, data : ${data}`)
 
         if (data[0] === 0x05) {
             // console.log(`buffer : ${buffer}, data : ${data}`)
@@ -78,7 +79,6 @@ export class HexpowerSimulator {
         if (this.buf[this.buf.length - 1] !== 0x04) {
             return false
         }
-        console.log(`buffer : ${this.buf}, data : ${data}`)
 
         this.serial.write(this.parse(this.buf), (err: any) => {
             if (err) {
