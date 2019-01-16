@@ -1,6 +1,6 @@
 import { Utils } from './utils'
 import { log } from 'util'
-import SerialPort = require('serialport')
+// import SerialPort = require('serialport')
 import { Serial } from './serial'
 
 // import BufferList = require('bl')
@@ -66,7 +66,7 @@ export class Hexpower {
         sensor: {},
     }
     public uid: string = ''
-    private serial?: SerialPort
+    // private serial?: SerialPort
     private reportData: IReportData = {}
 
     // public parsedData: IDataType = {
@@ -83,27 +83,27 @@ export class Hexpower {
     /**
      * serialInit
      */
-    public serialInit(port: string) {
-        this.serial = new SerialPort(port)
-        this.serial.on('error', (err: any) => {
-            console.log('Error: ', err.message)
-        })
-        this.serial.on('data', (data) => {
-            this.parser(data)
-        })
+    // public serialInit(port: string) {
+    //     this.serial = new SerialPort(port)
+    //     this.serial.on('error', (err: any) => {
+    //         console.log('Error: ', err.message)
+    //     })
+    //     this.serial.on('data', (data) => {
+    //         this.parser(data)
+    //     })
 
-        const reqFrameArray = [
-            this.makeFrame(0x52, 0x50, 0x07),
-            this.makeFrame(0x52, 0x60, 0x08),
-        ]
-        let count = 0
-        setInterval(() => {
-            if (this.serial) {
-                this.serial.write(reqFrameArray[count % reqFrameArray.length])
-            }
-            count++
-        }, 1000)
-    }
+    //     const reqFrameArray = [
+    //         this.makeFrame(0x52, 0x50, 0x07),
+    //         this.makeFrame(0x52, 0x60, 0x08),
+    //     ]
+    //     let count = 0
+    //     setInterval(() => {
+    //         if (this.serial) {
+    //             this.serial.write(reqFrameArray[count % reqFrameArray.length])
+    //         }
+    //         count++
+    //     }, 1000)
+    // }
 
     public calcCRC(data: number[], startIdx?: number, endIdx?: number): number {
         const start = startIdx ? startIdx : 1
