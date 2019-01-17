@@ -66,44 +66,13 @@ export class Hexpower {
         sensor: {},
     }
     public uid: string = ''
-    // private serial?: SerialPort
+    public reqFrameArray: number[][] = [
+        this.makeFrame(0x52, 0x50, 0x07),
+        this.makeFrame(0x52, 0x60, 0x08),
+    ]
+
     private reportData: IReportData = {}
-
-    // public parsedData: IDataType = {
-    //     solarCell: {},
-    //     utilityLine: { frequency: 0 },
-    //     // tslint:disable-next-line:object-literal-sort-keys
-    //     solarInverterPower: {},
-    //     sensor: {},
-    // }
-    private buffer = new Array()
-
     constructor(public id: number) {}
-
-    /**
-     * serialInit
-     */
-    // public serialInit(port: string) {
-    //     this.serial = new SerialPort(port)
-    //     this.serial.on('error', (err: any) => {
-    //         console.log('Error: ', err.message)
-    //     })
-    //     this.serial.on('data', (data) => {
-    //         this.parser(data)
-    //     })
-
-    //     const reqFrameArray = [
-    //         this.makeFrame(0x52, 0x50, 0x07),
-    //         this.makeFrame(0x52, 0x60, 0x08),
-    //     ]
-    //     let count = 0
-    //     setInterval(() => {
-    //         if (this.serial) {
-    //             this.serial.write(reqFrameArray[count % reqFrameArray.length])
-    //         }
-    //         count++
-    //     }, 1000)
-    // }
 
     public calcCRC(data: number[], startIdx?: number, endIdx?: number): number {
         const start = startIdx ? startIdx : 1
@@ -159,33 +128,33 @@ export class Hexpower {
         // console.log(data)
         data = Array.from(data)
 
-        if (data[0] === 0x06) {
-            this.buffer = data
-        } else if (this.buffer.length !== 0) {
-            this.buffer = this.buffer.concat(data)
-        }
-        if (this.buffer[this.buffer.length - 1] !== 0x04) {
-            return false
-        }
+        // if (data[0] === 0x06) {
+        //     this.buffer = data
+        // } else if (this.buffer.length !== 0) {
+        //     this.buffer = this.buffer.concat(data)
+        // }
+        // if (this.buffer[this.buffer.length - 1] !== 0x04) {
+        //     return false
+        // }
 
         const ascii2hex = new Utils().ascii2hex
 
-        if (!this.verifyResponse(this.buffer)) {
+        if (!this.verifyResponse(data)) {
             return false
         }
-        this.res.enq = this.buffer[0]
-        this.res.address = ascii2hex(this.buffer.slice(1, 3))
-        this.res.cmd = this.buffer[3]
-        this.res.start = ascii2hex(this.buffer.slice(4, 8))
+        this.res.enq = data[0]
+        this.res.address = ascii2hex(data.slice(1, 3))
+        this.res.cmd = data[3]
+        this.res.start = ascii2hex(data.slice(4, 8))
         const temp = []
-        for (let index = 8; index < this.buffer.length - 5; index += 4) {
-            temp.push(ascii2hex(this.buffer.slice(index, index + 4)))
+        for (let index = 8; index < data.length - 5; index += 4) {
+            temp.push(ascii2hex(data.slice(index, index + 4)))
         }
         this.res.data = temp
         this.res.checksum = ascii2hex(
-            this.buffer.slice(this.buffer.length - 5, this.buffer.length - 1)
+            data.slice(data.length - 5, data.length - 1)
         )
-        this.res.eot = this.buffer[this.buffer.length - 1]
+        this.res.eot = data[data.length - 1]
 
         // console.log(this.res)
 
@@ -247,7 +216,7 @@ export class Hexpower {
         //     })
         // }
 
-        this.buffer = []
+        // this.buffer = []
 
         return true
     }

@@ -8,7 +8,7 @@ import SerialPort = require('serialport')
 
 const HOST = 'mqtt://192.168.0.2'
 const SERIAL_PORT = 'COM3'
-const INVERTER_ID = [1, 2]
+const INVERTER_ID = [1, 2, 100]
 
 const utils = new Utils()
 const mqtt = new Mqtt(HOST)
@@ -31,35 +31,56 @@ serial.on('data', (data) => {
     if (buffer[buffer.length - 1] !== 0x04) {
         return false
     }
-})
-
-
-INVERTER_ID.forEach((id) => {
-    hpList.push(new Hexpower(id))
-})
-export const app = () => {
-    console.log(hpList)
-
+    console.log(utils.ascii2hex(buffer.slice(1, 3)))
     hpList.forEach((hp) => {
-        // hp.serialInit(SERIAL_PORT)
-
-        utils.getmac().then((mac) => {
-            hp.uid = bigInt(mac)
-                .multiply(0x10000)
-                .plus(hp.id)
-                .toString()
-
-            setInterval(() => {
-                const payload = hp.report()
-                if (payload.length !== 0) {
-                    mqtt.pub(payload, `1018201609091504/1/1/14/${hp.uid}/`)
-                    console.log(payload)
-                }
-            }, 3000)
-        })
+        if (hp.id === utils.ascii2hex(buffer.slice(1, 3))) {
+            hp.parser(buffer)
+            // buffer = []
+            return
+        }
     })
+})
+
+export const app = async (mac: number) => {
+    const reqFrameArray: number[][] = []
+
+    INVERTER_ID.forEach((id) => {
+        const hp = new Hexpower(id)
+        hp.reqFrameArray.forEach((reqFrame) => {
+            reqFrameArray.push(reqFrame)
+        })
+        hpList.push(hp)
+    })
+
+    let count = 0
+
+    await hpList.forEach((hp: Hexpower) => {
+        // hp.serialInit(SERIAL_PORT)
+        const macAndId: string = bigInt(mac)
+            .multiply(0x10000)
+            .plus(hp.id)
+            .toString()
+        hp.uid = `1018201609091504/1/1/14/${macAndId}/`
+
+        setInterval(() => {
+            const payload = hp.report()
+            // console.log(hpList)
+
+            if (payload.length !== 0) {
+                mqtt.pub(payload, hp.uid)
+                console.log(payload)
+            }
+        }, 10000)
+    })
+    setInterval(() => {
+        if (serial) {
+            serial.write(reqFrameArray[count % reqFrameArray.length])
+        }
+        count++
+    }, 1000)
+    console.log(hpList)
 }
 
 if (require.main === module) {
-    app()
+    utils.getmac().then((mac) => app(mac))
 }
