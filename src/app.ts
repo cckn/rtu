@@ -6,8 +6,8 @@ import bigInt from 'big-integer'
 import SerialPort = require('serialport')
 // import { Serial } from './serial'
 
-const HOST = 'mqtt://192.168.0.2'
-const SERIAL_PORT = 'COM3'
+const HOST = 'mqtt://110.10.129.92'
+const SERIAL_PORT = '/dev/serial0'
 const INVERTER_ID = [1, 2, 100]
 
 const utils = new Utils()

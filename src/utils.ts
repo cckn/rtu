@@ -54,7 +54,9 @@ export class Utils {
                 if (err) {
                     reject(err)
                 }
-                resolve(parseInt(macAddress.replace(/-/g, ''), 16))
+                console.log(macAddress)
+
+                resolve(parseInt(macAddress.replace(/:/g, ''), 16))
             })
         })
     }
@@ -62,7 +64,8 @@ export class Utils {
 
 if (require.main === module) {
     const utils = new Utils()
-    setTimeout(async () => {
-        console.log(await utils.getmac())
-    }, 1000)
+
+    utils.getmac().then((mac) => {
+        console.log(mac)
+    })
 }
