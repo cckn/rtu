@@ -178,16 +178,18 @@ export class Hexpower {
                 this.parsedData.utilityLine.rCurrent = this.res.data[3]
                 this.parsedData.utilityLine.sCurrent = this.res.data[4]
                 this.parsedData.utilityLine.tCurrent = this.res.data[5]
-                this.parsedData.utilityLine.frequency = this.res.data[6]
+                this.parsedData.utilityLine.frequency = this.res.data[6] / 10
                 // console.log(this.parsedData)
 
                 break
             case 0x60:
                 // console.log('전력량 계측 정보 명령2')
-                this.parsedData.solarInverterPower.solarKW = this.res.data[0]
+                this.parsedData.solarInverterPower.solarKW =
+                    this.res.data[0] * 100
                 this.parsedData.solarInverterPower.totalKWh =
                     this.res.data[2] * 0xffff + this.res.data[1]
-                this.parsedData.solarInverterPower.currentKVa = this.res.data[3]
+                this.parsedData.solarInverterPower.currentKVa =
+                    this.res.data[3] * 100
                 this.parsedData.solarInverterPower.maxKW = this.res.data[4]
                 this.parsedData.solarInverterPower.todayKWh = this.res.data[5]
                 this.parsedData.solarInverterPower.invPF = this.res.data[7]
