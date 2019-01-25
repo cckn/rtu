@@ -8,7 +8,7 @@ import SerialPort = require('serialport')
 
 const HOST = 'mqtt://110.10.129.92'
 const SERIAL_PORT = '/dev/serial0'
-const INVERTER_ID = [1, 2, 100]
+const INVERTER_ID = [1, 2, 3, 4, 5]
 
 const utils = new Utils()
 const mqtt = new Mqtt(HOST)
@@ -60,15 +60,18 @@ export const app = async (mac: number) => {
             .multiply(0x10000)
             .plus(hp.id)
             .toString()
-        hp.uid = `1018201609091504/1/1/14/${macAndId}/`
+        hp.topic = `1018201609091504/1/1/14/${macAndId}/`
+        hp.oid = `1018201609091504.1.1.14.${macAndId}`
 
         setInterval(() => {
             const payload = hp.report()
             // console.log(hpList)
 
             if (payload.length !== 0) {
-                mqtt.pub(payload, hp.uid)
-                console.log(payload)
+                mqtt.pub(payload, hp.topic)
+                console.log(`report : ${hp.id}`)
+
+                //toggle
             }
         }, 10000)
     })
@@ -78,9 +81,13 @@ export const app = async (mac: number) => {
         }
         count++
     }, 1000)
+    console.log(mac)
+
     console.log(hpList)
 }
 
 if (require.main === module) {
-    utils.getmac().then((mac) => app(mac))
+    // utils.getmac().then((mac: number) => app(mac))
+    const mac = 2483143332358
+    app(mac)
 }

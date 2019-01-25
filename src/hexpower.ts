@@ -65,7 +65,8 @@ export class Hexpower {
         solarInverterPower: {},
         sensor: {},
     }
-    public uid: string = ''
+    public topic: string = ''
+    public oid: string = ''
     public reqFrameArray: number[][] = [
         this.makeFrame(0x52, 0x50, 0x07),
         this.makeFrame(0x52, 0x60, 0x08),
