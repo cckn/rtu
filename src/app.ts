@@ -71,7 +71,7 @@ export const app = async (mac: number) => {
                 mqtt.pub(payload, hp.topic)
                 console.log(`report : ${hp.id}`)
 
-                //toggle
+                // toggle
             }
         }, 10000)
     })
